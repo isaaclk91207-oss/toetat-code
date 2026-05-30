@@ -2,10 +2,13 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import Container from "@/components/ui/Container";
 import { navLinks } from "@/lib/constants/navigation";
-import { siteConfig } from "@/lib/constants/site";
+
+const LOGO_URL =
+  "https://www.image2url.com/r2/default/images/1780124362424-5d98f294-f0e3-4a2a-b6d7-17a331bbf1a7.png";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -33,8 +36,15 @@ export default function Navbar() {
     >
       <Container>
         <nav className="flex h-16 items-center justify-between md:h-20">
-          <Link href="/" className="text-xl font-bold tracking-tight">
-            {siteConfig.name}
+          <Link href="/" className="shrink-0">
+            <Image
+              src={LOGO_URL}
+              alt="ToeTat Solution Hub"
+              width={160}
+              height={48}
+              className="h-10 w-auto md:h-12"
+              priority
+            />
           </Link>
 
           <div className="hidden items-center gap-8 md:flex">

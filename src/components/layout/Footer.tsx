@@ -1,7 +1,11 @@
 import Link from "next/link";
+import Image from "next/image";
 import Container from "@/components/ui/Container";
 import { navLinks } from "@/lib/constants/navigation";
 import { siteConfig } from "@/lib/constants/site";
+
+const LOGO_URL =
+  "https://www.image2url.com/r2/default/images/1780122685294-0673266a-3779-4d8f-b63f-179eef1104ba.jpg";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -11,8 +15,14 @@ export default function Footer() {
       <Container className="py-12 md:py-16">
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           <div className="sm:col-span-2 lg:col-span-1">
-            <Link href="/" className="text-lg font-bold tracking-tight">
-              {siteConfig.name}
+            <Link href="/" className="inline-block">
+              <Image
+                src={LOGO_URL}
+                alt="ToeTat Solution Hub"
+                width={180}
+                height={54}
+                className="h-14 w-auto"
+              />
             </Link>
             <p className="mt-3 text-sm leading-relaxed text-muted">
               {siteConfig.description}
