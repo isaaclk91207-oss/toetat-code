@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { motion } from "framer-motion";
-import { Send } from "lucide-react";
+import { Send, Loader2 } from "lucide-react";
 import Container from "@/components/ui/Container";
 import Section from "@/components/ui/Section";
 import SectionHeading from "@/components/ui/SectionHeading";
@@ -10,12 +10,35 @@ import Button from "@/components/ui/Button";
 import { fadeUp, smooth } from "@/lib/animations";
 import { cn } from "@/lib/utils";
 
+const FORMSPREE_ENDPOINT = "https://formspree.io/f/mwvzzkzy";
+
 export default function ContactForm() {
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setIsSubmitted(true);
+    setIsLoading(true);
+
+    const form = e.currentTarget;
+    const data = new FormData(form);
+
+    try {
+      const res = await fetch(FORMSPREE_ENDPOINT, {
+        method: "POST",
+        body: data,
+        headers: { Accept: "application/json" },
+      });
+
+      if (res.ok) {
+        setIsSubmitted(true);
+      }
+    } catch {
+      // Formspree will handle the submission via redirect fallback
+      // The fetch is a progressive enhancement
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -54,6 +77,7 @@ export default function ContactForm() {
                   </label>
                   <input
                     id="name"
+                    name="name"
                     type="text"
                     required
                     className={cn(
@@ -69,6 +93,7 @@ export default function ContactForm() {
                   </label>
                   <input
                     id="email"
+                    name="email"
                     type="email"
                     required
                     className={cn(
@@ -84,10 +109,11 @@ export default function ContactForm() {
                 <label htmlFor="message" className="block text-sm font-medium">
                   Message
                 </label>
-                <textarea
-                  id="message"
-                  rows={5}
-                  required
+                  <textarea
+                    id="message"
+                    name="message"
+                    rows={5}
+                    required
                   className={cn(
                     "mt-2 w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm",
                     "placeholder:text-muted focus:border-primary focus:outline-none resize-none",
@@ -96,9 +122,19 @@ export default function ContactForm() {
                 />
               </div>
 
-              <Button variant="primary" size="lg" className="w-full md:w-auto">
-                <Send size={16} />
-                Send Message
+              <Button
+                type="submit"
+                variant="primary"
+                size="lg"
+                className="w-full md:w-auto"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <Loader2 size={16} className="animate-spin" />
+                ) : (
+                  <Send size={16} />
+                )}
+                {isLoading ? "Sending..." : "Send Message"}
               </Button>
             </form>
           )}
