@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { motion } from "framer-motion";
-import { Send, Loader2 } from "lucide-react";
+import { Send, Loader2, AlertCircle } from "lucide-react";
 import Container from "@/components/ui/Container";
 import Section from "@/components/ui/Section";
 import SectionHeading from "@/components/ui/SectionHeading";
@@ -10,32 +10,38 @@ import Button from "@/components/ui/Button";
 import { fadeUp, smooth } from "@/lib/animations";
 import { cn } from "@/lib/utils";
 
-const FORMSPREE_ENDPOINT = "https://formspree.io/f/mwvzzkzy";
-
 export default function ContactForm() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setIsLoading(true);
+    setError("");
 
     const form = e.currentTarget;
-    const data = new FormData(form);
+    const data = {
+      name: (form.elements.namedItem("name") as HTMLInputElement).value,
+      email: (form.elements.namedItem("email") as HTMLInputElement).value,
+      message: (form.elements.namedItem("message") as HTMLTextAreaElement).value,
+    };
 
     try {
-      const res = await fetch(FORMSPREE_ENDPOINT, {
+      const res = await fetch("/api/contact", {
         method: "POST",
-        body: data,
-        headers: { Accept: "application/json" },
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
       });
 
       if (res.ok) {
         setIsSubmitted(true);
+      } else {
+        const err = await res.json();
+        setError(err.error || "Failed to send message");
       }
     } catch {
-      // Formspree will handle the submission via redirect fallback
-      // The fetch is a progressive enhancement
+      setError("Network error. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -121,6 +127,13 @@ export default function ContactForm() {
                   placeholder="Tell us about your project..."
                 />
               </div>
+
+              {error && (
+                <div className="flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
+                  <AlertCircle size={16} />
+                  {error}
+                </div>
+              )}
 
               <Button
                 type="submit"
